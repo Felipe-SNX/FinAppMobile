@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.ListView
 import android.widget.Spinner
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -11,75 +12,97 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.finapp.model.OperacaoModel
 import com.example.finapp.R
-import com.example.finapp.TransacaoAdapter
+import com.example.finapp.com.example.finapp.OperacaoAdapter
+import com.example.finapp.com.example.finapp.TipoOperacao
+import com.example.finapp.data.dao.OperacaoDao
 
 class ExtratoActivity : AppCompatActivity() {
 
-    // Supondo que você tenha um objeto para acessar o banco de dados
-    // private lateinit var database: AppDatabase
-    private lateinit var transacaoAdapter: TransacaoAdapter
+    private lateinit var operacaoAdapter: OperacaoAdapter
+    private lateinit var operacaoDao: OperacaoDao;
+    private lateinit var listView: RecyclerView;
+    private lateinit var textViewSaldo: TextView;
+    private lateinit var emptyTextView: TextView;
+    private lateinit var comboFiltro: Spinner;
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_extrato)
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_extrato);
 
-        // --- 1. Encontrar os componentes visuais do XML ---
-        val textViewSaldo: TextView = findViewById(R.id.textViewSaldo)
-        val spinnerFiltro: Spinner = findViewById(R.id.spinnerFiltro)
-        val recyclerView: RecyclerView = findViewById(R.id.recyclerViewTransacoes)
+        textViewSaldo = findViewById(R.id.textViewSaldo);
+        emptyTextView = findViewById(R.id.emptyTextView);
+        comboFiltro = findViewById(R.id.spinnerFiltro);
+        listView = findViewById(R.id.recyclerViewTransacoes);
+        operacaoDao = OperacaoDao(this);
 
-        // --- 2. Carregar TODOS os dados e calcular o saldo ---
-        // (Aqui você chamaria seu banco de dados para pegar a lista completa)
-        // val todasAsTransacoes = database.transacaoDao().buscarTodas()
-        val todasAsTransacoes = listOf<OperacaoModel>() // Lista de exemplo vazia
+        listAllOperacoes();
 
-        // O saldo é calculado com base em TODAS as transações, independente do filtro
+        val opcoesFiltro = listOf("Todos", "Débitos", "Créditos");
+        val comboAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, opcoesFiltro);
+        comboFiltro.adapter = comboAdapter;
+
+        comboFiltro.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                when (opcoesFiltro[position]) {
+                    "Todos" -> {
+                        listAllOperacoes();
+                    }
+                    "Débitos" -> {
+                        listAllByTipo(TipoOperacao.DEBITO);
+                    }
+                    "Créditos" -> {
+                        listAllByTipo(TipoOperacao.CREDITO);
+                    }
+                }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+            }
+        }
+    }
+
+    fun listAllOperacoes(){
+        val operacoes: List<OperacaoModel> = operacaoDao.getAllOperacoes();
+        if(operacoes.isEmpty()){
+            listView.visibility = ListView.GONE
+            emptyTextView.visibility = TextView.VISIBLE
+        }
+        else {
+            listView.visibility = ListView.VISIBLE
+            emptyTextView.visibility = TextView.GONE
+
+            operacaoAdapter = OperacaoAdapter(operacoes)
+            listView.layoutManager = LinearLayoutManager(this)
+            listView.adapter = operacaoAdapter
+        }
+        calcularSaldo(operacoes);
+    }
+
+    fun listAllByTipo(tipoOperacao: TipoOperacao){
+        val operacoes: List<OperacaoModel> = operacaoDao.getAllByTipo(tipoOperacao.toString());
+        if(operacoes.isEmpty()){
+            listView.visibility = ListView.GONE
+            emptyTextView.visibility = TextView.VISIBLE
+        }
+        else {
+            listView.visibility = ListView.VISIBLE
+            emptyTextView.visibility = TextView.GONE
+
+            operacaoAdapter = OperacaoAdapter(operacoes)
+            listView.layoutManager = LinearLayoutManager(this)
+            listView.adapter = operacaoAdapter
+        }
+    }
+
+    fun calcularSaldo(operacoes: List<OperacaoModel> ){
         var saldo = 0.0
-        for (t in todasAsTransacoes) {
-            if (t.tipoOperacao == "crédito") {
+        for (t in operacoes) {
+            if (t.tipoOperacao == TipoOperacao.CREDITO.toString()) {
                 saldo += t.valor
             } else {
                 saldo -= t.valor
             }
         }
         textViewSaldo.text = String.format("Saldo da Carteira: R$ %.2f", saldo)
-
-        // --- 3. Configurar o RecyclerView ---
-        transacaoAdapter = TransacaoAdapter(todasAsTransacoes)
-        recyclerView.layoutManager = LinearLayoutManager(this)
-        recyclerView.adapter = transacaoAdapter
-
-        // --- 4. Configurar o Spinner (ComboBox) de filtro ---
-        val opcoesFiltro = listOf("Todos", "Débitos", "Créditos")
-        val spinnerAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, opcoesFiltro)
-        spinnerFiltro.adapter = spinnerAdapter
-
-        // --- 5. Adicionar a lógica de filtro ao Spinner ---
-        spinnerFiltro.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                // Pega a opção que o usuário selecionou
-                when (opcoesFiltro[position]) {
-                    "Todos" -> {
-                        // Aqui você busca TODAS as transações do BD e atualiza o adapter
-                        // val listaFiltrada = database.transacaoDao().buscarTodas()
-                        // transacaoAdapter.atualizarLista(listaFiltrada)
-                    }
-                    "Débitos" -> {
-                        // Aqui você busca SÓ OS DÉBITOS do BD e atualiza o adapter
-                        // val listaFiltrada = database.transacaoDao().buscarDebitos()
-                        // transacaoAdapter.atualizarLista(listaFiltrada)
-                    }
-                    "Créditos" -> {
-                        // Aqui você busca SÓ OS CRÉDITOS do BD e atualiza o adapter
-                        // val listaFiltrada = database.transacaoDao().buscarCreditos()
-                        // transacaoAdapter.atualizarLista(listaFiltrada)
-                    }
-                }
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                // Não precisa fazer nada aqui
-            }
-        }
     }
 }
