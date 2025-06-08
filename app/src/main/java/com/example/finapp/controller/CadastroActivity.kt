@@ -15,20 +15,20 @@ import android.text.Editable
 import java.text.DecimalFormat
 
 class CadastroActivity : AppCompatActivity() {
-    private lateinit var operacaoDao: OperacaoDao
+    private lateinit var operacaoDao: OperacaoDao;
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_cadastro)
-        operacaoDao = OperacaoDao(this)
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_cadastro);
+        operacaoDao = OperacaoDao(this);
 
-        val rgTipo = findViewById<RadioGroup>(R.id.rgTipo)
-        val etDescricao = findViewById<EditText>(R.id.etDescricao)
-        val etValor = findViewById<EditText>(R.id.etValor)
-        val btnSalvar = findViewById<Button>(R.id.btnSalvar)
+        val rgTipo = findViewById<RadioGroup>(R.id.rgTipo);
+        val etDescricao = findViewById<EditText>(R.id.etDescricao);
+        val etValor = findViewById<EditText>(R.id.etValor);
+        val btnSalvar = findViewById<Button>(R.id.btnSalvar);
 
         btnSalvar.setOnClickListener {
-            val marcado = rgTipo.checkedRadioButtonId
+            val marcado = rgTipo.checkedRadioButtonId;
             val tipoStr = when (marcado) {
                 R.id.rbDebito -> TipoOperacao.DEBITO
                 R.id.rbCredito -> TipoOperacao.CREDITO
@@ -36,31 +36,34 @@ class CadastroActivity : AppCompatActivity() {
                     Toast.makeText(this, "Selecione Débito ou Crédito", Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
-            }
+            };
 
-            val descr = etDescricao.text.toString().trim()
-            val valStr = etValor.text.toString().trim()
+            val descr = etDescricao.text.toString().trim();
+            val valStr = etValor.text.toString().trim();
             if (descr.isEmpty() || valStr.isEmpty()) {
                 Toast.makeText(this, "Preencha todos os campos!", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
-            }
-            val valor = valStr.toDoubleOrNull()
+            };
+
+            val valorFormatado = valStr.replace(",", ".");
+            val valor = valorFormatado.toDoubleOrNull();
+
             if (valor == null) {
                 Toast.makeText(this, "Valor inválido!", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
-            }
+            };
 
             val operacao = OperacaoModel(
                 id = 0,
                 descricao = descr,
                 valor = valor,
                 tipoOperacao = tipoStr.toString()
-            )
+            );
 
-            operacaoDao.addOperacao(operacao)
+            operacaoDao.addOperacao(operacao);
 
-            Toast.makeText(this, "Operação cadastrada!", Toast.LENGTH_SHORT).show()
-            finish()
+            Toast.makeText(this, "Operação cadastrada!", Toast.LENGTH_SHORT).show();
+            finish();
         }
 
         //Formata o valor para duas casas decimais

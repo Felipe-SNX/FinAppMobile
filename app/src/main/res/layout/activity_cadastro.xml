@@ -21,6 +21,15 @@
         android:layout_width="wrap_content"
         android:layout_height="50dp"/>
 
+    <TextView
+        android:id="@+id/labelRadioTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32sp"
+        android:text="Escolha o tipo de Operação"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
     <RadioGroup
         android:id="@+id/rgTipo"
         android:orientation="horizontal"
@@ -31,7 +40,8 @@
             android:id="@+id/rbDebito"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Débito"/>
+            android:text="Débito"
+            android:layout_marginRight="5dp"/>
 
         <RadioButton
             android:id="@+id/rbCredito"
