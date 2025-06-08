@@ -1,14 +1,18 @@
+package com.example.finapp
+
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.finapp.model.OperacaoModel
+import com.example.finapp.R
 
 // Supondo que você tenha uma classe de dados como esta
 // data class Transacao(val tipo: String, val descricao: String, val valor: Double)
 
-class TransacaoAdapter(private var transacoes: List<Transacao>) : RecyclerView.Adapter<TransacaoAdapter.TransacaoViewHolder>() {
+class TransacaoAdapter(private var transacoes: List<OperacaoModel>) : RecyclerView.Adapter<TransacaoAdapter.TransacaoViewHolder>() {
 
     // 1. Esta classe representa UM item da lista (nosso list_item_transacao.xml)
     class TransacaoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -32,7 +36,7 @@ class TransacaoAdapter(private var transacoes: List<Transacao>) : RecyclerView.A
         holder.textoValor.text = String.format("R$ %.2f", transacao.valor)
 
         // Define a imagem baseada no tipo da transação
-        if (transacao.tipo == "crédito") {
+        if (transacao.tipoOperacao == "crédito") {
             // holder.imagemTipo.setImageResource(R.drawable.ic_credito) // Imagem de crédito
         } else {
             // holder.imagemTipo.setImageResource(R.drawable.ic_debito) // Imagem de débito
@@ -45,7 +49,7 @@ class TransacaoAdapter(private var transacoes: List<Transacao>) : RecyclerView.A
     }
 
     // Função para atualizar a lista quando o filtro for aplicado
-    fun atualizarLista(novaLista: List<Transacao>) {
+    fun atualizarLista(novaLista: List<OperacaoModel>) {
         transacoes = novaLista
         notifyDataSetChanged() // Avisa a lista que os dados mudaram e ela precisa se redesenhar
     }

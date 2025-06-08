@@ -1,3 +1,5 @@
+package com.example.finapp.controller
+
 import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
@@ -9,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.finapp.model.OperacaoModel
 import com.example.finapp.R
+import com.example.finapp.TransacaoAdapter
 
 class ExtratoActivity : AppCompatActivity() {
 
