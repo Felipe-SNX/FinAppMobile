@@ -24,6 +24,33 @@ class DBHelper(context: Context):
         """.trimIndent()
         db?.execSQL(createTable)
 
+        val values1 = android.content.ContentValues().apply {
+            put("descricao", "Operação Teste de Crédito")
+            put("valor", 9.98)
+            put("tipoOperacao", "credito")
+        }
+        db?.insert(TABLE_NAME, null, values1)
+
+        val values2 = android.content.ContentValues().apply {
+            put("descricao", "Operação Teste 2 de Crédito")
+            put("valor", 12.98)
+            put("tipoOperacao", "credito")
+        }
+        db?.insert(TABLE_NAME, null, values2)
+
+        val values3 = android.content.ContentValues().apply {
+            put("descricao", "Operação Teste de Débito")
+            put("valor", 23.98)
+            put("tipoOperacao", "debito")
+        }
+        db?.insert(TABLE_NAME, null, values3)
+
+        val values4 = android.content.ContentValues().apply {
+            put("descricao", "Operação Teste 2 de Débito")
+            put("valor", 12.98)
+            put("tipoOperacao", "debito")
+        }
+        db?.insert(TABLE_NAME, null, values4)
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {

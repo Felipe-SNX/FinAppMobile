@@ -5,7 +5,6 @@ import android.content.Context
 import android.database.Cursor
 import com.example.finapp.data.db.DBHelper
 import com.example.finapp.model.OperacaoModel
-import kotlin.text.insert
 
 class OperacaoDao (private val context: Context){
     private val dbHelper = DBHelper(context);
@@ -25,6 +24,30 @@ class OperacaoDao (private val context: Context){
     fun getAllOperacoes(): List<OperacaoModel>{
         val db = dbHelper.readableDatabase
         val cursor: Cursor = db.query(DBHelper.TABLE_NAME, null, null, null, null, null, null)
+        val operacaoList = mutableListOf<OperacaoModel>()
+        while(cursor.moveToNext()){
+            val id = cursor.getInt(cursor.getColumnIndexOrThrow("id"))
+            val descricao = cursor.getString(cursor.getColumnIndexOrThrow("descricao"))
+            val valor = cursor.getDouble(cursor.getColumnIndexOrThrow("valor"))
+            val tipoOperacao = cursor.getString(cursor.getColumnIndexOrThrow("tipoOperacao"))
+            operacaoList.add(OperacaoModel(id,descricao,valor,tipoOperacao))
+        }
+        cursor.close()
+        db.close()
+        return operacaoList
+    }
+
+    fun getAllByTipo(tipoBusca: String): List<OperacaoModel>{
+        val db = dbHelper.readableDatabase
+        val cursor: Cursor = db.query(
+            DBHelper.TABLE_NAME,
+            null,
+            "tipoOperacao = ?",
+            arrayOf(tipoBusca),
+            null,
+            null,
+            null
+        );
         val operacaoList = mutableListOf<OperacaoModel>()
         while(cursor.moveToNext()){
             val id = cursor.getInt(cursor.getColumnIndexOrThrow("id"))
