@@ -7,6 +7,8 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.finapp.model.OperacaoModel
+import com.example.finapp.R
 
 class ExtratoActivity : AppCompatActivity() {
 
@@ -26,12 +28,12 @@ class ExtratoActivity : AppCompatActivity() {
         // --- 2. Carregar TODOS os dados e calcular o saldo ---
         // (Aqui você chamaria seu banco de dados para pegar a lista completa)
         // val todasAsTransacoes = database.transacaoDao().buscarTodas()
-        val todasAsTransacoes = listOf<Transacao>() // Lista de exemplo vazia
+        val todasAsTransacoes = listOf<OperacaoModel>() // Lista de exemplo vazia
 
         // O saldo é calculado com base em TODAS as transações, independente do filtro
         var saldo = 0.0
         for (t in todasAsTransacoes) {
-            if (t.tipo == "crédito") {
+            if (t.tipoOperacao == "crédito") {
                 saldo += t.valor
             } else {
                 saldo -= t.valor
