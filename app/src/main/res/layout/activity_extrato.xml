@@ -17,12 +17,29 @@
         android:textSize="24sp"
         android:textStyle="bold" />
 
-    <Spinner
-        android:id="@+id/spinnerFiltro"
+    <View
+        android:layout_width="wrap_content"
+        android:layout_height="35dp"/>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/menu_filtro"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="48dp"
-        android:minHeight="48dp" />
+        android:hint="Filtrar por">
+
+        <AutoCompleteTextView
+            android:id="@+id/comboFiltro"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="none"
+            android:textSize="16sp" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <View
+        android:layout_width="wrap_content"
+        android:layout_height="35dp"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewTransacoes"

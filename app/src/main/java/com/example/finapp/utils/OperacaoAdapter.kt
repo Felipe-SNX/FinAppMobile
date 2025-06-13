@@ -1,16 +1,19 @@
-package com.example.finapp.com.example.finapp
+package com.example.finapp.utils
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.Adapter
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.example.finapp.R
 import com.example.finapp.model.OperacaoModel
+import com.example.finapp.model.enum.TipoOperacao
+import com.example.finapp.utils.OperacaoAdapter.OperacaoViewHolder
 
-class OperacaoAdapter(private var operacoes: List<OperacaoModel>) : Adapter<OperacaoAdapter.OperacaoViewHolder>() {
+class OperacaoAdapter(private var operacoes: List<OperacaoModel>) : Adapter<OperacaoViewHolder>() {
 
     class OperacaoViewHolder(itemView: View) : ViewHolder(itemView) {
         val imagemTipo: ImageView = itemView.findViewById(R.id.imageViewTipo)
@@ -29,7 +32,7 @@ class OperacaoAdapter(private var operacoes: List<OperacaoModel>) : Adapter<Oper
         holder.textoDescricao.text = operacao.descricao
         holder.textoValor.text = String.format("R$ %.2f", operacao.valor)
 
-        if (operacao.tipoOperacao == TipoOperacao.CREDITO.toString()) {
+        if (operacao.tipoOperacao == TipoOperacao.CREDITO) {
             holder.imagemTipo.setImageResource(R.drawable.img_credito)
         } else {
             holder.imagemTipo.setImageResource(R.drawable.img_debito)
