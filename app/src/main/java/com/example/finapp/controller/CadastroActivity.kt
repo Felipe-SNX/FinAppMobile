@@ -12,7 +12,12 @@ import com.example.finapp.com.example.finapp.TipoOperacao
 import com.example.finapp.data.dao.OperacaoDao
 import com.example.finapp.model.OperacaoModel
 import android.text.Editable
+import android.util.Log
+import java.math.BigDecimal
+import java.math.RoundingMode
 import java.text.DecimalFormat
+import java.text.NumberFormat
+import java.util.Locale
 
 class CadastroActivity : AppCompatActivity() {
     private lateinit var operacaoDao: OperacaoDao;
@@ -67,40 +72,56 @@ class CadastroActivity : AppCompatActivity() {
         }
 
         //Formata o valor para duas casas decimais
-        etValor.addTextChangedListener(object : TextWatcher{
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+        etValor.addTextChangedListener(MoneyTextWatcher(etValor));
+    }
+
+    class MoneyTextWatcher(val editText: EditText): TextWatcher{
+        companion object{
+            private const val replaceRegex: String = "[R$,.\u00A0]";
+            private const val replaceFinal: String = "R$\u00A0";
+        }
+
+        override fun beforeTextChanged(
+            editable: CharSequence?,
+            start: Int,
+            count: Int,
+            after: Int
+        ) {
+        }
+
+        override fun onTextChanged(
+            editable: CharSequence?,
+            start: Int,
+            before: Int,
+            count: Int
+        ) {
+        }
+
+        override fun afterTextChanged(editable: Editable?) {
+            try{
+                val stringEditable = editable.toString();
+
+                if(stringEditable.isEmpty()) return;
+
+                editText.removeTextChangedListener(this);
+                val cleanString = stringEditable.replace(replaceRegex.toRegex(), "");
+
+                val parsed = BigDecimal(cleanString)
+                    .setScale(2, RoundingMode.FLOOR)
+                    .divide(BigDecimal(100), RoundingMode.FLOOR);
+
+                val decimalFormat = NumberFormat.getCurrencyInstance(Locale("pt", "BR")) as DecimalFormat;
+                val formatted = decimalFormat.format(parsed);
+
+                val stringFinal = formatted.replace(replaceFinal, "");
+                editText.setText(stringFinal);
+                editText.setSelection(stringFinal.length);
+                editText.addTextChangedListener(this);
+
+            }catch(e: Exception){
+                Log.e("ERROR", e.toString());
             }
+        }
 
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            }
-
-            override fun afterTextChanged(editable: Editable?) {
-                etValor.removeTextChangedListener(this);
-
-                val stringOriginal = editable.toString();
-                val separadorDecimal = DecimalFormat().decimalFormatSymbols.decimalSeparator;
-                var textoLimpo = stringOriginal.replace(".", separadorDecimal.toString());
-
-                val temVirgula = textoLimpo.indexOf(separadorDecimal);
-
-                if (temVirgula >= 0) {
-                    val integerPart = textoLimpo.substring(0, temVirgula);
-                    var decimalPart = textoLimpo.substring(temVirgula + 1);
-
-                    if (decimalPart.length > 2) {
-                        decimalPart = decimalPart.substring(0, 2);
-                    }
-
-                    val newText = "$integerPart$separadorDecimal$decimalPart";
-                    etValor.setText(newText);
-                    etValor.setSelection(newText.length);
-                } else {
-                    etValor.setText(textoLimpo);
-                    etValor.setSelection(textoLimpo.length);
-                }
-
-                etValor.addTextChangedListener(this)
-            }
-        });
     }
 }
