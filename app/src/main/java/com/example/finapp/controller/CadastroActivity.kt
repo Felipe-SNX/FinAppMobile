@@ -31,46 +31,61 @@ class CadastroActivity : AppCompatActivity() {
         btnSalvar = findViewById<Button>(R.id.btnSalvar);
 
         btnSalvar.setOnClickListener {
-
-            val tipoOperacao = when (rgTipo.checkedRadioButtonId) {
-                R.id.rbDebito -> TipoOperacao.DEBITO
-                R.id.rbCredito -> TipoOperacao.CREDITO
-                else -> {
-                    Toast.makeText(this, "Selecione Débito ou Crédito", Toast.LENGTH_SHORT).show();
-                    return@setOnClickListener;
-                }
-            }
-
-            val descr = etDescricao.text.toString().trim();
-            val valStr = etValor.text.toString().trim();
-            if (descr.isEmpty() || valStr.isEmpty()) {
-                Toast.makeText(this, "Preencha todos os campos!", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            };
-
-            val semPontos = valStr.replace(".", "");
-            val valorFormatado = semPontos.replace(",", ".");
-            val valor = valorFormatado.toDoubleOrNull();
-
-            if (valor == null) {
-                Toast.makeText(this, "Valor inválido!", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            };
-
-            val operacao = OperacaoModel(
-                id = 0,
-                descricao = descr,
-                valor = valor,
-                tipoOperacao = tipoOperacao
-            );
-
-            operacaoDao.addOperacao(operacao);
-
-            Toast.makeText(this, "Operação cadastrada!", Toast.LENGTH_SHORT).show();
-            finish();
+            salvarOperacao();
         }
 
         //Formata o valor para duas casas decimais
         etValor.addTextChangedListener(MoneyTextWatcher(etValor));
+    }
+
+    private fun salvarOperacao(){
+        if(!validarFormulario()){
+            return;
+        }
+
+        val operacao = criarOperacao() ?: return;
+
+        operacaoDao.addOperacao(operacao);
+
+        Toast.makeText(this, "Operação cadastrada!", Toast.LENGTH_SHORT).show();
+        finish();
+    }
+
+    private fun validarFormulario(): Boolean{
+        if(rgTipo.checkedRadioButtonId == -1){
+            Toast.makeText(this, "Selecione Débito ou Crédito", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        if(etDescricao.text.isNullOrBlank() || etValor.text.isNullOrBlank()){
+            Toast.makeText(this, "Preencha todos os campos!", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        return true;
+    }
+
+    private fun criarOperacao(): OperacaoModel?{
+
+        val tipoOperacao = when (rgTipo.checkedRadioButtonId) {
+            R.id.rbDebito -> TipoOperacao.DEBITO
+            else -> TipoOperacao.CREDITO
+        };
+
+        val descr = etDescricao.text.toString().trim();
+        val valStr = etValor.text.toString().trim();
+
+        val valor = valStr.replace(".", "").replace(",", ".").toDoubleOrNull();
+        if (valor == null) {
+            Toast.makeText(this, "Valor inválido!", Toast.LENGTH_SHORT).show();
+            return null;
+        }
+
+        return OperacaoModel(
+            id = 0,
+            descricao = descr,
+            valor = valor,
+            tipoOperacao = tipoOperacao
+        );
     }
 }
