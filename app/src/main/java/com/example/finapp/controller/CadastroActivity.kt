@@ -34,7 +34,6 @@ class CadastroActivity : AppCompatActivity() {
             salvarOperacao();
         }
 
-        //Formata o valor para duas casas decimais
         etValor.addTextChangedListener(MoneyTextWatcher(etValor));
     }
 
